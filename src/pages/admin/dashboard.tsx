@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSupabaseUsers } from "@/hooks/useSupabaseUsers";
 import Sidebar from "@/components/admin/Sidebar";
 import MetricsOverview from "@/components/admin/MetricsOverview";
 import UserManagement from "@/components/admin/UserManagement";
@@ -20,6 +21,15 @@ interface DashboardProps {
 
 const Dashboard = ({ activeSection = "dashboard" }: DashboardProps) => {
   const [currentSection, setCurrentSection] = useState(activeSection);
+  const {
+    customers,
+    freelancers,
+    loading,
+    error,
+    handleVerify,
+    handleSuspend,
+    handleDelete,
+  } = useSupabaseUsers();
 
   const renderContent = () => {
     switch (currentSection) {
@@ -27,11 +37,25 @@ const Dashboard = ({ activeSection = "dashboard" }: DashboardProps) => {
         return (
           <div className="space-y-6">
             <MetricsOverview />
-            <UserManagement />
+            <UserManagement
+              customers={customers}
+              freelancers={freelancers}
+              onVerify={handleVerify}
+              onSuspend={handleSuspend}
+              onDelete={handleDelete}
+            />
           </div>
         );
       case "users":
-        return <UserManagement />;
+        return (
+          <UserManagement
+            customers={customers}
+            freelancers={freelancers}
+            onVerify={handleVerify}
+            onSuspend={handleSuspend}
+            onDelete={handleDelete}
+          />
+        );
       case "kyc":
         return <KYCVerification />;
       case "proposals":
@@ -51,6 +75,42 @@ const Dashboard = ({ activeSection = "dashboard" }: DashboardProps) => {
         return null;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-gray-100">
+        <Sidebar
+          activeSection={currentSection}
+          onNavigate={(section) =>
+            setCurrentSection(section as typeof currentSection)
+          }
+        />
+        <main className="flex-1 overflow-auto p-6">
+          <div className="flex items-center justify-center h-full">
+            <p className="text-lg text-gray-500">Loading...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen bg-gray-100">
+        <Sidebar
+          activeSection={currentSection}
+          onNavigate={(section) =>
+            setCurrentSection(section as typeof currentSection)
+          }
+        />
+        <main className="flex-1 overflow-auto p-6">
+          <div className="flex items-center justify-center h-full">
+            <p className="text-lg text-red-500">Error: {error}</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
