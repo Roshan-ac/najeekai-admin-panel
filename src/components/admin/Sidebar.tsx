@@ -1,6 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   LayoutDashboard,
@@ -10,7 +11,14 @@ import {
   FileText,
   BarChart,
   Settings,
+  LogOut,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SidebarProps {
   className?: string;
@@ -40,6 +48,13 @@ const Sidebar = ({
   activeSection = "dashboard",
   onNavigate = () => {},
 }: SidebarProps) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Here you would typically clear any auth tokens or state
+    navigate("/");
+  };
+
   return (
     <div
       className={cn(
@@ -71,17 +86,32 @@ const Sidebar = ({
       </ScrollArea>
 
       <div className="border-t p-6">
-        <div className="flex items-center gap-3">
-          <img
-            src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin"
-            alt="Admin"
-            className="h-10 w-10 rounded-full"
-          />
-          <div>
-            <p className="font-medium">Admin User</p>
-            <p className="text-sm text-muted-foreground">admin@example.com</p>
-          </div>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors">
+              <img
+                src="https://api.dicebear.com/7.x/avataaars/svg?seed=admin"
+                alt="Admin"
+                className="h-10 w-10 rounded-full"
+              />
+              <div className="flex-1">
+                <p className="font-medium">Admin User</p>
+                <p className="text-sm text-muted-foreground">
+                  admin@example.com
+                </p>
+              </div>
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[240px]">
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="text-red-600 focus:text-red-600"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
